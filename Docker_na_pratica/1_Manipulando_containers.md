@@ -35,3 +35,12 @@ Reinicia um container existente que estava parado (`mynginx`), preservando as al
 
 ### `docker rm -f mynginx`
 Força a remoção imediata de um container (`-f` / `--force`), mesmo que ele ainda esteja em execução. O Docker envia um sinal de interrupção abrupta (*SIGKILL*) e apaga o container imediatamente.
+
+### `docker rm -f <inicio_id>`
+Remove um container forçadamente utilizando apenas os primeiros caracteres do seu ID (ex: `docker rm -f a1b`). O Docker faz a busca e, se o trecho fornecido for único e não ambíguo, localiza e apaga o container correto sem precisar do ID completo.
+
+### `docker run -d nginx`
+Executa o container em modo *detached* (segundo plano/background). O Docker inicia o serviço `nginx`, libera o terminal imediatamente e retorna apenas o ID longo do container gerado.
+
+### `docker attach <id_container>`
+Anexa o terminal do host aos fluxos de entrada, saída e erro (*stdin*, *stdout*, *stderr*) de um container que já está em execução em background, permitindo visualizar os logs em tempo real ou interagir diretamente com ele.
