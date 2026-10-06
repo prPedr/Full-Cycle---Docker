@@ -20,3 +20,18 @@ Tenta executar um container apontando para um executável `/xpto` que não exist
 
 ### `docker run --name mycontainer3 hello-world /hello`
 Executa o container nomeado `mycontainer3` sobrescrevendo o comando padrão de inicialização pelo executável `/hello` interno da imagem `hello-world`, executando a aplicação com sucesso.
+
+### `docker rm <id_container>` / `docker rm <nome_container>`
+Remove um container do sistema utilizando seu ID ou nome. Para que este comando funcione, o container **deve estar parado ou finalizado** (status *Exited*); não é possível remover um container enquanto ele estiver em execução.
+
+### `docker run --name mynginx nginx`
+Baixa a imagem `nginx` (se necessário) e inicia um container chamado `mynginx` em primeiro plano (*foreground*), prendendo o terminal no log do servidor web.
+
+### `docker stop mynginx`
+Envia um sinal (*SIGTERM*) para interromper de forma graciosa o container `mynginx`. É a maneira recomendada para parar um container, permitindo que a aplicação salve estados e encerre processos com segurança antes de desligar.
+
+### `docker start mynginx`
+Reinicia um container existente que estava parado (`mynginx`), preservando as alterações e configurações feitas no container antes da interrupção.
+
+### `docker rm -f mynginx`
+Força a remoção imediata de um container (`-f` / `--force`), mesmo que ele ainda esteja em execução. O Docker envia um sinal de interrupção abrupta (*SIGKILL*) e apaga o container imediatamente.
