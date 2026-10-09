@@ -56,3 +56,9 @@ Abre um terminal interativo (`bash`) dentro de um container em execução. A com
 
 ### `docker run --rm nginx`
 Cria e executa um container a partir da imagem `nginx` e adiciona a flag `--rm`, que garante a remoção automática do container e do seu sistema de arquivos no momento em que ele for parado ou finalizado.
+
+### `docker ps -aq`
+Lista apenas (`-q` / *quiet*) os IDs numéricos de todos (`-a` / *all*) os containers presentes no sistema, sejam eles ativos ou parados. Retorna uma lista limpa contendo apenas as hashes dos containers, sem cabeçalhos ou colunas extras.
+
+### `docker rm -f $(docker ps -aq)`
+Remove forçadamente (`-f`) todos os containers do sistema de uma só vez. O comando utiliza a substituição de Shell `$(...)` para passar a lista de IDs retornada pelo `docker ps -aq` como argumento para o `docker rm -f`.
