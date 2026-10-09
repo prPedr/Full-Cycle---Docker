@@ -1,72 +1,168 @@
-# Comandos Básicos do Docker
+# Resumo do Capítulo: Manipulando Containers
 
-### `docker run hello-world`
-Baixa a imagem oficial `hello-world` (caso ainda não exista localmente) e executa um container a partir dela. Este container exibe uma mensagem de confirmação do ambiente Docker e finaliza a execução.
+Este documento consolida os conceitos fundamentais, comandos e boas práticas para a manipulação e gerenciamento de containers no Docker.
 
-### `docker ps`
-Lista todos os containers que estão atualmente em **execução** no sistema, exibindo informações como ID, imagem, comando de entrada, tempo de criação, status e portas.
+---
 
-### `docker ps -a`
-Lista **todos** os containers do sistema, incluindo os que estão rodando e os que já foram finalizados (*Exited*).
+## 1. Executando o Primeiro Container
 
-### `docker run --name mycontainer hello-world`
-Cria e executa um container a partir da imagem `hello-world`, atribuindo a ele o nome customizado `mycontainer` para facilitar sua identificação e gerenciamento em vez de usar um nome aleatório gerado pelo Docker.
+Para verificar se o ambiente Docker está instalado e configurado corretamente, utiliza-se o container de teste oficial:
 
-### `docker run --help | grep name`
-Exibe a documentação de ajuda do comando `docker run` e filtra a saída (usando o `grep`) para mostrar apenas as linhas que contêm a palavra "name" (geralmente usada para buscar a sintaxe da flag `--name`).
+```bash
+docker run hello-world
+```
 
-### `docker run --name mycontainer2 hello-world /xpto`
-Tenta executar um container apontando para um executável `/xpto` que não existe dentro da imagem `hello-world`. O container falha no início da execução e retorna um erro de arquivo/diretório não encontrado.
+> **Funcionamento:** Este comando verifica se a imagem `hello-world` existe localmente. Caso contrário, faz o download automático (*pull*) do Docker Hub, cria e executa o container, exibindo uma mensagem de confirmação no terminal antes de finalizar.
 
-### `docker run --name mycontainer3 hello-world /hello`
-Executa o container nomeado `mycontainer3` sobrescrevendo o comando padrão de inicialização pelo executável `/hello` interno da imagem `hello-world`, executando a aplicação com sucesso.
+---
 
-### `docker rm <id_container>` / `docker rm <nome_container>`
-Remove um container do sistema utilizando seu ID ou nome. Para que este comando funcione, o container **deve estar parado ou finalizado** (status *Exited*); não é possível remover um container enquanto ele estiver em execução.
+## 2. Nomeando Containers e Modos de Execução
 
-### `docker run --name mynginx nginx`
-Baixa a imagem `nginx` (se necessário) e inicia um container chamado `mynginx` em primeiro plano (*foreground*), prendendo o terminal no log do servidor web.
+### Executando um Container com Nome Personalizado (`--name`)
+Por padrão, o Docker atribui nomes aleatórios aos containers. Para facilitar a identificação e manipulação, utilize a flag `--name`:
 
-### `docker stop mynginx`
-Envia um sinal (*SIGTERM*) para interromper de forma graciosa o container `mynginx`. É a maneira recomendada para parar um container, permitindo que a aplicação salve estados e encerre processos com segurança antes de desligar.
+```bash
+docker run --name mynginx nginx
+```
 
-### `docker start mynginx`
-Reinicia um container existente que estava parado (`mynginx`), preservando as alterações e configurações feitas no container antes da interrupção.
+### Executando em Segundo Plano (`-d`)
+Para liberar o terminal e executar o container em background (*detached mode*), utilize a flag `-d`:
 
-### `docker rm -f mynginx`
-Força a remoção imediata de um container (`-f` / `--force`), mesmo que ele ainda esteja em execução. O Docker envia um sinal de interrupção abrupta (*SIGKILL*) e apaga o container imediatamente.
+```bash
+docker run -d --name mynginx nginx
+```
 
-### `docker rm -f <inicio_id>`
-Remove um container forçadamente utilizando apenas os primeiros caracteres do seu ID (ex: `docker rm -f a1b`). O Docker faz a busca e, se o trecho fornecido for único e não ambíguo, localiza e apaga o container correto sem precisar do ID completo.
+### Mapeando Portas (`-p`)
+Permite mapear uma porta da máquina hospedeira (*host*) para uma porta interna do container no formato `HOST:CONTAINER`:
 
-### `docker run -d nginx`
-Executa o container em modo *detached* (segundo plano/background). O Docker inicia o serviço `nginx`, libera o terminal imediatamente e retorna apenas o ID longo do container gerado.
+```bash
+docker run -d -p 8080:80 nginx
+```
+> **Resultado:** A aplicação Nginx rodando na porta `80` do container fica acessível externamente via `http://localhost:8080`.
 
-### `docker attach <id_container>`
-Anexa o terminal do host aos fluxos de entrada, saída e erro (*stdin*, *stdout*, *stderr*) de um container que já está em execução em background, permitindo visualizar os logs em tempo real ou interagir diretamente com ele.
+---
 
-### `docker exec <id_container> ls`
-Executa o comando `ls` dentro de um container que já está rodando, listando os arquivos e diretórios do diretório de trabalho padrão sem precisar entrar interativamente no container.
+## 3. Gerenciamento do Ciclo de Vida do Container
 
-### `docker exec <id_container> ls -la`
-Executa o comando `ls -la` dentro do container em execução, listando todos os arquivos e diretórios (incluindo ocultos) com detalhes de permissões, proprietário, tamanho e data de modificação.
+### Listando Containers
+- **Apenas em execução:**
+  ```bash
+  docker ps
+  ```
+- **Todos os containers (ativos e parados):**
+  ```bash
+  docker ps -a
+  ```
 
-### `docker exec -it <id_container> bash`
-Abre um terminal interativo (`bash`) dentro de um container em execução. A combinação das flags `-i` (*interactive*, mantém o stdin aberto) e `-t` (*tty*, aloca um terminal pseudo-TTY) permite navegar e executar comandos diretamente no Shell do container.
+> [!NOTE]
+> `docker ps` exibe apenas containers ativos. Para visualizar containers finalizados com status *Exited*, use `docker ps -a`.
 
-### `docker run --rm nginx`
-Cria e executa um container a partir da imagem `nginx` e adiciona a flag `--rm`, que garante a remoção automática do container e do seu sistema de arquivos no momento em que ele for parado ou finalizado.
+### Parando e Iniciando Containers
+- **Parar um container ativo (desligamento gracioso):**
+  ```bash
+  docker stop mynginx
+  ```
+- **Reiniciar um container parado:**
+  ```bash
+  docker start mynginx
+  ```
 
-### `docker ps -aq`
-Lista apenas (`-q` / *quiet*) os IDs numéricos de todos (`-a` / *all*) os containers presentes no sistema, sejam eles ativos ou parados. Retorna uma lista limpa contendo apenas as hashes dos containers, sem cabeçalhos ou colunas extras.
+### Removendo Containers
+- **Remoção padrão (apenas containers parados):**
+  ```bash
+  docker rm mynginx
+  ```
+- **Remoção forçada (containers em execução):**
+  ```bash
+  docker rm -f mynginx
+  ```
 
-### `docker rm -f $(docker ps -aq)`
-Remove forçadamente (`-f`) todos os containers do sistema de uma só vez. O comando utiliza a substituição de Shell `$(...)` para passar a lista de IDs retornada pelo `docker ps -aq` como argumento para o `docker rm -f`.
+---
 
-### `docker run -p 8080:80 nginx`
-Mapeia a porta `8080` da máquina hospedeira (*host*) para a porta `80` dentro do container (`-p host:container`). Isso permite acessar o servidor Nginx rodando dentro do container diretamente pelo navegador ou requisições na sua máquina através de `http://localhost:8080`.
+## 4. Conexão ao Terminal (Attach vs. Detach)
 
-Quando você executa o `docker ps`, a coluna **PORTS** exibe o mapeamento no formato:
-`0.0.0.0:8080->80/tcp, :::8080->80/tcp`
+### Conectando-se ao Processo Principal (`docker attach`)
+Permite conectar o terminal local ao processo em execução dentro de um container rodando em background:
 
-Isso indica que o tráfego recebido na porta `8080` de qualquer interface de rede do host está sendo redirecionado para a porta `80/tcp` do container.
+```bash
+docker attach mynginx
+```
+
+> [!TIP]
+> **Saindo sem encerrar o container:** Para se desconectar do container sem pará-lo, pressione a sequência de teclas: **`CTRL + P`** seguido de **`CTRL + Q`**.
+
+---
+
+## 5. Execução de Comandos e Remoção Automática
+
+### Executando Comandos em um Novo Container
+É possível disparar um comando isolado direto na criação do container:
+
+```bash
+docker run nginx ls -la
+```
+
+### Acessando o Shell Interativo
+Para abrir uma sessão interativa no terminal do container (`-i` interativo, `-t` pseudo-TTY):
+
+```bash
+docker run -it nginx bash
+```
+
+### Diferença Fundamental: `docker run` vs `docker exec`
+* **`docker run`**: Cria e inicia um **novo** container.
+* **`docker exec`**: Executa um novo processo dentro de um container que **já está em execução**.
+
+```bash
+# Exemplo com docker exec
+docker exec -it mynginx bash
+```
+
+### Remoção Automática (`--rm`)
+Remove o container e seu sistema de arquivos descartável automaticamente assim que a execução do processo for finalizada:
+
+```bash
+docker run --rm nginx ls -la
+```
+
+---
+
+## 6. Remoção em Massa de Containers
+
+Utilizando a substituição de comandos do Shell `$(...)` com a flag `-q` (*quiet*, retorna apenas os IDs):
+
+* **Remover todos os containers parados:**
+  ```bash
+  docker rm $(docker ps -a -q)
+  ```
+
+* **Remover TODOS os containers (inclusive em execução):**
+  ```bash
+  docker rm -f $(docker ps -a -q)
+  ```
+
+---
+
+## 7. Diferenças Principais de Conceitos
+
+### `docker exec` vs `docker attach`
+* **`docker exec`**: Cria um **novo processo separado** no container (ex: abrir uma nova sessão bash para inspeção).
+* **`docker attach`**: Conecta seu terminal diretamente ao **processo principal (PID 1)** do container (ex: visualizar logs em tempo real).
+
+---
+
+## Tabela Resumo de Comandos
+
+| Categoria | Comando | Descrição |
+| :--- | :--- | :--- |
+| **Criação / Execução** | `docker run <imagem>` | Cria e inicia um container. |
+| **Segundo Plano** | `docker run -d <imagem>` | Executa o container em background. |
+| **Mapeamento de Porta**| `docker run -p 8080:80 <imagem>` | Mapeia porta Host:Container. |
+| **Listagem** | `docker ps` | Lista containers ativos. |
+| **Listagem Geral** | `docker ps -a` | Lista todos os containers (ativos e parados). |
+| **Controle** | `docker stop <nome\|id>` | Interrompe a execução do container. |
+| **Controle** | `docker start <nome\|id>` | Inicia um container parado. |
+| **Remoção Simples** | `docker rm <nome\|id>` | Remove um container parado. |
+| **Remoção Forçada** | `docker rm -f <nome\|id>` | Remove um container mesmo em execução. |
+| **Interatividade** | `docker exec -it <nome\|id> bash` | Abre um Shell dentro de um container ativo. |
+| **Limpeza Geral** | `docker rm -f $(docker ps -a -q)` | Apaga todos os containers do sistema. |
