@@ -44,3 +44,15 @@ Executa o container em modo *detached* (segundo plano/background). O Docker inic
 
 ### `docker attach <id_container>`
 Anexa o terminal do host aos fluxos de entrada, saída e erro (*stdin*, *stdout*, *stderr*) de um container que já está em execução em background, permitindo visualizar os logs em tempo real ou interagir diretamente com ele.
+
+### `docker exec <id_container> ls`
+Executa o comando `ls` dentro de um container que já está rodando, listando os arquivos e diretórios do diretório de trabalho padrão sem precisar entrar interativamente no container.
+
+### `docker exec <id_container> ls -la`
+Executa o comando `ls -la` dentro do container em execução, listando todos os arquivos e diretórios (incluindo ocultos) com detalhes de permissões, proprietário, tamanho e data de modificação.
+
+### `docker exec -it <id_container> bash`
+Abre um terminal interativo (`bash`) dentro de um container em execução. A combinação das flags `-i` (*interactive*, mantém o stdin aberto) e `-t` (*tty*, aloca um terminal pseudo-TTY) permite navegar e executar comandos diretamente no Shell do container.
+
+### `docker run --rm nginx`
+Cria e executa um container a partir da imagem `nginx` e adiciona a flag `--rm`, que garante a remoção automática do container e do seu sistema de arquivos no momento em que ele for parado ou finalizado.
