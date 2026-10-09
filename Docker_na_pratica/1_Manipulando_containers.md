@@ -62,3 +62,11 @@ Lista apenas (`-q` / *quiet*) os IDs numéricos de todos (`-a` / *all*) os conta
 
 ### `docker rm -f $(docker ps -aq)`
 Remove forçadamente (`-f`) todos os containers do sistema de uma só vez. O comando utiliza a substituição de Shell `$(...)` para passar a lista de IDs retornada pelo `docker ps -aq` como argumento para o `docker rm -f`.
+
+### `docker run -p 8080:80 nginx`
+Mapeia a porta `8080` da máquina hospedeira (*host*) para a porta `80` dentro do container (`-p host:container`). Isso permite acessar o servidor Nginx rodando dentro do container diretamente pelo navegador ou requisições na sua máquina através de `http://localhost:8080`.
+
+Quando você executa o `docker ps`, a coluna **PORTS** exibe o mapeamento no formato:
+`0.0.0.0:8080->80/tcp, :::8080->80/tcp`
+
+Isso indica que o tráfego recebido na porta `8080` de qualquer interface de rede do host está sendo redirecionado para a porta `80/tcp` do container.
